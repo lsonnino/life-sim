@@ -13,11 +13,11 @@ FPS = 1
 ###############################
 #   COLORS
 ###############################
+
 BACKGROUND_COLOR = (0, 0, 0)
 WATER_COLOR = (54, 141, 197)
 DIRT_COLOR = (155, 118, 83)
 GRASS_COLOR = (99, 201, 0)
-SAND_COLOR = (237, 200, 85)
 
 
 ###############################
@@ -28,8 +28,7 @@ SIZE = 10
 WIDTH = floor(WIN_SIZE[0] / SIZE)
 HEIGHT = floor(WIN_SIZE[1] / SIZE)
 
-MAP_FLATNESS = 0.5
-# SEED = 7839261739
-SEED = 8629378618930
+NOISE_DECAY = 0.8
+SEED = 7839261739
+# SEED = 8629378618930
 WATER_LEVEL = 0.5
-SAND_LEVEL = WATER_LEVEL + 0.05

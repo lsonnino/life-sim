@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-from src.constants import WIDTH, HEIGHT, SEED
+from src.constants import WIDTH, HEIGHT, SEED, NOISE_DECAY
 
 
 def generate():
@@ -21,7 +21,7 @@ def generate():
     map[corners[3][0], corners[3][1]] = random.random()
 
     # Apply diamond algorithm
-    diamond(map, corners)
+    diamond(map, corners, 1)
 
     return map
 
@@ -42,7 +42,7 @@ def is_ended(corners):
         corners[2][1] <= corners[0][1] + 1 and corners[3][1] <= corners[1][1] + 1
 
 
-def diamond(map, corners):
+def diamond(map, corners, noise):
     """
     Apply the diamond algorithm to generate an hight map
     :param map: the map to generate
@@ -69,7 +69,7 @@ def diamond(map, corners):
             map[corners[2][0], corners[2][1]],
             map[corners[3][0], corners[3][1]]
         ]) / 4
-        map[center_point[0], center_point[1]] = average_value + random.random()
+        map[center_point[0], center_point[1]] = average_value + random.random() * noise
 
     # Get the new points as follow:
     #  C0 *  T  *  C1
@@ -97,7 +97,7 @@ def diamond(map, corners):
         if val >= 0:
             tmp.append(val)
         # Set left_point
-        map[left_point[0], left_point[1]] = random.random() + sum(tmp) / len(tmp)
+        map[left_point[0], left_point[1]] = random.random() * noise + sum(tmp) / len(tmp)
 
     # top_point:
     if map[top_point[0], top_point[1]] < 0:
@@ -109,7 +109,7 @@ def diamond(map, corners):
         val = get_closest(map, left_point, [0, -1])
         if val >= 0:
             tmp.append(val)
-        map[top_point[0], top_point[1]] = random.random() + sum(tmp) / len(tmp)
+        map[top_point[0], top_point[1]] = random.random() * noise + sum(tmp) / len(tmp)
 
     # right_point:
     if map[right_point[0], right_point[1]] < 0:
@@ -121,7 +121,7 @@ def diamond(map, corners):
         val = get_closest(map, left_point, [1, 0])
         if val >= 0:
             tmp.append(val)
-        map[right_point[0], right_point[1]] = random.random() + sum(tmp) / len(tmp)
+        map[right_point[0], right_point[1]] = random.random() * noise + sum(tmp) / len(tmp)
 
     # bottom_point:
     if map[bottom_point[0], bottom_point[1]] < 0:
@@ -133,10 +133,10 @@ def diamond(map, corners):
         val = get_closest(map, left_point, [0, 1])
         if val >= 0:
             tmp.append(val)
-        map[bottom_point[0], bottom_point[1]] = random.random() + sum(tmp) / len(tmp)
+        map[bottom_point[0], bottom_point[1]] = random.random() * noise + sum(tmp) / len(tmp)
 
     # Do the recursion with the newly generated points
-    diamond(map, [corners[0], top_point, left_point, center_point])
-    diamond(map, [top_point, corners[1], center_point, right_point])
-    diamond(map, [left_point, center_point, corners[2], bottom_point])
-    diamond(map, [center_point, right_point, bottom_point, corners[3]])
+    diamond(map, [corners[0], top_point, left_point, center_point], noise * NOISE_DECAY)
+    diamond(map, [top_point, corners[1], center_point, right_point], noise * NOISE_DECAY)
+    diamond(map, [left_point, center_point, corners[2], bottom_point], noise * NOISE_DECAY)
+    diamond(map, [center_point, right_point, bottom_point, corners[3]], noise * NOISE_DECAY)

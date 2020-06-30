@@ -1,20 +1,18 @@
 import numpy as np
 
-from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, SAND_COLOR
-from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL, SAND_LEVEL
+from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR
+from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL
 from src.map_generator import generate
 
 
 def case_color(value):
     if value < WATER_LEVEL:
         return WATER_COLOR
-    elif value < SAND_LEVEL:
-        return SAND_COLOR
     else:
         dirt_r, dirt_g, dirt_b = DIRT_COLOR
         grass_r, grass_g, grass_b = GRASS_COLOR
 
-        coef = (value - 1) / (SAND_LEVEL - 1)
+        coef = (value - 1) / (WATER_LEVEL - 1)
         co_coef = 1 - coef
 
         return coef * grass_r + co_coef * dirt_r,\

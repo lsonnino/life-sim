@@ -2,6 +2,7 @@ import pygame
 from time import sleep
 
 from src.constants import NAME, VERSION, WIN_SIZE, FPS
+from src.constants import BACKGROUND_COLOR
 from src.game import Game
 
 ###############################
@@ -13,7 +14,7 @@ pygame.init()
 
 # Creating the window
 window = pygame.display.set_mode(WIN_SIZE)
-window.fill((0, 0, 0))
+window.fill(BACKGROUND_COLOR)
 
 # Setting the window name
 pygame.display.set_caption(NAME + " - " + VERSION)

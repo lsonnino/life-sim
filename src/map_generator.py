@@ -1,7 +1,30 @@
 import numpy as np
 import random
 
-from src.constants import WIDTH, HEIGHT, SEED, NOISE_DECAY
+from src.constants import WIDTH, HEIGHT, SEED, NOISE_DECAY, WATER_LEVEL
+
+
+def __is_water(map, x, y, default=True):
+    if x < 0 or x >= WIDTH or y < 0 or y >= HEIGHT:
+        return default
+
+    return map[x, y] <= WATER_LEVEL
+
+
+def post_processing(map):
+    # Remove isolated water points or isolated islands
+    for x in range(WIDTH):
+        for y in range(HEIGHT):
+            water = map[x, y] <= WATER_LEVEL
+            next_to_water = 0
+            for i in [-1, 1]:
+                next_to_water += 1 if __is_water(map, x + i, y) else 0
+                next_to_water += 1 if __is_water(map, x, y + i) else 0
+
+            if water and next_to_water == 0:
+                map[x, y] = WATER_LEVEL + 0.1
+            elif not water and next_to_water == 4:
+                map[x, y] = WATER_LEVEL - 0.1
 
 
 def generate():
@@ -22,6 +45,17 @@ def generate():
 
     # Apply diamond algorithm
     diamond(map, corners, 1)
+
+    # Offset the map to ensure its values are positive
+    map_offset = np.amin(map)
+    if map_offset < 0:
+        map += map_offset
+
+    # Normalize the map so that its values are between 0 and 1
+    map = map / np.amax(map)
+
+    # Apply post-processing
+    post_processing(map)
 
     return map
 

@@ -6,7 +6,7 @@ from src.map_generator import generate
 
 
 def case_color(value):
-    if value < WATER_LEVEL:
+    if value <= WATER_LEVEL:
         return WATER_COLOR
     else:
         dirt_r, dirt_g, dirt_b = DIRT_COLOR
@@ -45,14 +45,6 @@ class Game(object):
     def __init__(self, window):
         self.window = window
         self.map = generate()
-
-        # Offset the map to ensure its values are positive
-        map_offset = np.amin(self.map)
-        if map_offset < 0:
-            self.map += map_offset
-
-        # Normalize the map so that its values are between 0 and 1
-        self.map = self.map / np.amax(self.map)
 
     def __draw_case(self, color, x, y):
         self.window.fill(color, (SIZE * x, SIZE * y, SIZE, SIZE))

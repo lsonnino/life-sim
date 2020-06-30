@@ -49,9 +49,6 @@ class Game(object):
         self.window.fill(color, (SIZE * x, SIZE * y, SIZE, SIZE))
 
     def draw(self):
-        # Initialize window background
-        self.window.fill(BACKGROUND_COLOR)
-
         # Draw the map
         for x in range(WIDTH):
             for y in range(HEIGHT):

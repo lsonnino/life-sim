@@ -13,6 +13,7 @@ pygame.init()
 
 # Creating the window
 window = pygame.display.set_mode(WIN_SIZE)
+window.fill((0, 0, 0))
 
 # Setting the window name
 pygame.display.set_caption(NAME + " - " + VERSION)
@@ -27,7 +28,6 @@ clock = pygame.time.Clock()
 
 running = True
 game = Game(window)
-window.fill((0, 0, 0))
 
 while running:
     # Check events

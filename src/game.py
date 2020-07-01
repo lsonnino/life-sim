@@ -94,6 +94,7 @@ class PopulationHandler(object):
         matrix, closest, size = self.__build_adjacent_matrix()
         to_remove = [False] * size
 
+        # Move
         for i in range(size):
             h = self.population[i]
 
@@ -119,10 +120,19 @@ class PopulationHandler(object):
 
             to_remove[i] = h.is_alive(map, population_density)
 
+        # Remove those who are dead
         self.population = list(compress(self.population, to_remove))
 
-        size = len(self.population)
-        # todo
+        # Reproduce
+        matrix, closest, size = self.__build_adjacent_matrix()
+        to_add = []
+        for i in range(size):
+            for j in range(i + 1, size):
+                if matrix[i, j] <= reproduction_distance and \
+                        self.population[i].want_reproduce(self.population[j]) and \
+                        self.population[j].want_reproduce(self.population[i]):
+                    to_add.append(self.population[i].reproduce(self.population[j]))
+        self.population = self.population + to_add
 
     def draw(self, window):
         for h in self.population:

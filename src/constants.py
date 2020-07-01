@@ -18,8 +18,8 @@ food_decrease = 0.01
 aging = 0.01
 
 drowning = 0.2
-disease_rate = 0.01
-random_dead = 0.01
+disease_rate = 0.005
+random_dead = 0.001
 
 reproduction_distance = 2
 mutation_rate = 0.01

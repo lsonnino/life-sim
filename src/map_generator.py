@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-from src.constants import WIDTH, HEIGHT, SEED, NOISE_DECAY, WATER_LEVEL
+from src.constants import WIDTH, HEIGHT, NOISE_DECAY, WATER_LEVEL
 
 
 def __is_water(map, x, y, default=True):
@@ -28,8 +28,6 @@ def post_processing(map):
 
 
 def generate():
-    # Set the seed
-    random.seed(SEED)
     # Initialize the whole map to -1
     map = np.zeros((WIDTH, HEIGHT)) - 1.0
 

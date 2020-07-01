@@ -1,7 +1,8 @@
 import pygame
 from time import sleep
+import random
 
-from src.constants import NAME, VERSION, WIN_SIZE, FPS
+from src.constants import NAME, VERSION, WIN_SIZE, FPS, SEED
 from src.constants import BACKGROUND_COLOR
 from src.game import Game
 
@@ -21,6 +22,9 @@ pygame.display.set_caption(NAME + " - " + VERSION)
 
 # Setting up the clock
 clock = pygame.time.Clock()
+
+# Initialize random seed
+random.seed(SEED)
 
 
 ###############################

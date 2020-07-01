@@ -1,6 +1,13 @@
 from math import floor
 
 ###############################
+#   GENERAL PARAMETERS
+###############################
+
+# SEED = 7839261739
+SEED = 8629378618930
+
+###############################
 #   PYGAME PARAMETERS
 ###############################
 
@@ -29,6 +36,4 @@ WIDTH = floor(WIN_SIZE[0] / SIZE)
 HEIGHT = floor(WIN_SIZE[1] / SIZE)
 
 NOISE_DECAY = 0.8
-# SEED = 7839261739
-SEED = 8629378618930
 WATER_LEVEL = 0.5

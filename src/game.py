@@ -106,8 +106,16 @@ class PopulationHandler(object):
                 map[h.x, h.y + 1] if h.y + 1 < HEIGHT else 0
             ]
             population_density = len(np.where(matrix[i] <= 1)) / size
+            c_east = closest[i][0] / WIDTH
+            c_west = closest[i][1] / WIDTH
+            c_north = closest[i][2] / HEIGHT
+            c_south = closest[i][3] / HEIGHT
+            c_east = c_east if c_east >= 0 else 1
+            c_west = c_west if c_west >= 0 else 1
+            c_north = c_north if c_north >= 0 else 1
+            c_south = c_south if c_south >= 0 else 1
 
-            h.move(map_level, closest[i], population_density)
+            h.move(map_level, [c_east, c_west, c_north, c_south], population_density)
 
             to_remove[i] = h.is_alive(map, population_density)
 

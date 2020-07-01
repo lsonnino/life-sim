@@ -149,14 +149,14 @@ class Human(object):
         return np.argmax(out)
 
     def __social(self, humans_closest, population_density):
-        out = self.__survival_brain.forward(
+        out = self.__social_brain.forward(
             humans_closest + [population_density]
         )
 
         return np.argmax(out)
 
     def __reproduction(self, other_age, other_water, other_food):
-        out = self.__survival_brain.forward(
+        out = self.__reproductive_brain.forward(
             [self.age, other_age, other_water, other_food]
         )
 

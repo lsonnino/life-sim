@@ -1,4 +1,3 @@
-from math import floor
 
 ###############################
 #   GENERAL PARAMETERS
@@ -10,18 +9,18 @@ SEED = 8629378618930
 INITIAL_POPULATION = 100
 
 ###############################
-#   GAME MECANICS
+#   GAME MECHANICS
 ###############################
 
 water_decrease = 0.01
 food_decrease = 0.05
 aging = 0.001
 
-drowning = 0.01
+drowning = 1e-10
 disease_rate = 0.9
-population_distance = 1
+population_distance = 2
 
-reproduction_rate = 0.01
+reproduction_rest = 100
 reproduction_distance = 0
 mutation_rate = 0.01
 
@@ -53,8 +52,8 @@ HUMAN_COLOR = (141, 85, 36)
 ###############################
 
 SIZE = 10
-WIDTH = floor(WIN_SIZE[0] / SIZE)
-HEIGHT = floor(WIN_SIZE[1] / SIZE)
+WIDTH = int(WIN_SIZE[0] / SIZE)
+HEIGHT = int(WIN_SIZE[1] / SIZE)
 
 NOISE_DECAY = 0.8
 WATER_LEVEL = 0.5

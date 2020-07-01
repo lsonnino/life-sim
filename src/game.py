@@ -5,7 +5,7 @@ from itertools import compress
 
 from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, HUMAN_COLOR
 from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL
-from src.constants import INITIAL_POPULATION, reproduction_distance, reproduction_rate, population_distance
+from src.constants import INITIAL_POPULATION, reproduction_distance, reproduction_rest, population_distance
 from src.map_generator import generate
 from src.agent import Human
 
@@ -49,6 +49,7 @@ def generate_map():
 class PopulationHandler(object):
     def __init__(self):
         self.population = [Human() for i in range(INITIAL_POPULATION)]
+        self.reproduction_wait = 0
 
     def __build_adjacent_matrix(self):
         size = len(self.population)
@@ -91,6 +92,19 @@ class PopulationHandler(object):
 
         return np.array(matrix), np.array(closest), size
 
+    def __reproduce(self):
+        # Reproduce
+        matrix, closest, size = self.__build_adjacent_matrix()
+        to_add = []
+        for i in range(size):
+            for j in range(i + 1, size):
+                if matrix[i, j] <= reproduction_distance and \
+                        random.random() < reproduction_rate and \
+                        self.population[i].want_reproduce(self.population[j]) and \
+                        self.population[j].want_reproduce(self.population[i]):
+                    to_add.append(self.population[i].reproduce(self.population[j]))
+        self.population = self.population + to_add
+
     def tick(self, map):
         matrix, closest, size = self.__build_adjacent_matrix()
         to_remove = [False] * size
@@ -125,16 +139,11 @@ class PopulationHandler(object):
         self.population = list(compress(self.population, to_remove))
 
         # Reproduce
-        matrix, closest, size = self.__build_adjacent_matrix()
-        to_add = []
-        for i in range(size):
-            for j in range(i + 1, size):
-                if matrix[i, j] <= reproduction_distance and \
-                        random.random() < reproduction_rate and \
-                        self.population[i].want_reproduce(self.population[j]) and \
-                        self.population[j].want_reproduce(self.population[i]):
-                    to_add.append(self.population[i].reproduce(self.population[j]))
-        self.population = self.population + to_add
+        if self.reproduction_wait == reproduction_rest:
+            self.reproduction_wait = 0
+            self.__reproduce()
+
+        self.reproduction_wait += 1
 
     def draw(self, window):
         for h in self.population:

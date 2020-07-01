@@ -7,6 +7,22 @@ from math import floor
 # SEED = 7839261739
 SEED = 8629378618930
 
+INITIAL_POPULATION = 100
+
+###############################
+#   GAME MECANICS
+###############################
+
+water_decrease = 0.01
+food_decrease = 0.01
+aging = 0.01
+
+drowning = 0.2
+disease_rate = 0.01
+random_dead = 0.01
+
+mutation_rate = 0.01
+
 ###############################
 #   PYGAME PARAMETERS
 ###############################
@@ -37,3 +53,15 @@ HEIGHT = floor(WIN_SIZE[1] / SIZE)
 
 NOISE_DECAY = 0.8
 WATER_LEVEL = 0.5
+
+###############################
+#   AGENT CONSTANTS
+###############################
+NOTHING = 0
+EAST = 1
+WEST = 2
+NORTH = 3
+SOUTH = 4
+
+YES = 0
+NO = 1

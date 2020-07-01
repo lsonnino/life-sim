@@ -1,10 +1,11 @@
 import pygame
 import numpy as np
+import random
 from itertools import compress
 
 from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, HUMAN_COLOR
 from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL
-from src.constants import INITIAL_POPULATION, reproduction_distance
+from src.constants import INITIAL_POPULATION, reproduction_distance, reproduction_rate, population_distance
 from src.map_generator import generate
 from src.agent import Human
 
@@ -106,7 +107,7 @@ class PopulationHandler(object):
                 map[h.x, h.y - 1] if 0 <= h.y - 1 else 0,
                 map[h.x, h.y + 1] if h.y + 1 < HEIGHT else 0
             ]
-            population_density = len(np.where(matrix[i] <= 1)) / size
+            population_density = len(np.where(matrix[i] <= population_distance)) / size
             c_east = closest[i][0] / WIDTH
             c_west = closest[i][1] / WIDTH
             c_north = closest[i][2] / HEIGHT
@@ -129,6 +130,7 @@ class PopulationHandler(object):
         for i in range(size):
             for j in range(i + 1, size):
                 if matrix[i, j] <= reproduction_distance and \
+                        random.random() < reproduction_rate and \
                         self.population[i].want_reproduce(self.population[j]) and \
                         self.population[j].want_reproduce(self.population[i]):
                     to_add.append(self.population[i].reproduce(self.population[j]))
@@ -136,7 +138,7 @@ class PopulationHandler(object):
 
     def draw(self, window):
         for h in self.population:
-            pygame.draw.circle(window, HUMAN_COLOR, (h.x * SIZE, h.y * SIZE), SIZE)
+            pygame.draw.circle(window, HUMAN_COLOR, (h.x * SIZE, h.y * SIZE), SIZE / 2)
 
 
 class Game(object):

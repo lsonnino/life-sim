@@ -3,7 +3,7 @@ import random
 
 from src.constants import WIDTH, HEIGHT, WATER_LEVEL
 from src.constants import NOTHING, EAST, WEST, NORTH, SOUTH, YES, NO
-from src.constants import water_decrease, food_decrease, aging, disease_rate, random_dead, drowning, mutation_rate
+from src.constants import water_decrease, food_decrease, aging, disease_rate, drowning, mutation_rate
 
 
 class NeuralNetwork(object):
@@ -64,12 +64,11 @@ class Human(object):
         if both says 'yes', the the two reproduce
 
     Could die by:
-        age reaches 1
+        random death based on age (certain death if age is 1)
         food level reaches 0
         water level reaches 0
         by drowning if goes into too deap waters
         disease because close to too many people for too long
-        random cause
 
     Thinking:
         This happen on multiple level brain. When a higher priority brain decides to do nothing, the next brain
@@ -128,11 +127,24 @@ class Human(object):
         self.age += aging
 
     def is_alive(self, map, population_density):
-        return 0 <= self.x < WIDTH and 0 <= self.y < HEIGHT and \
-               map[self.x, self.y] > (WATER_LEVEL - drowning) and \
-               self.age < 1 and self.water > 0 and self.food > 0 and \
-               random.random() > population_density * disease_rate and \
-               random.random() > random_dead
+        if not (0 <= self.x < WIDTH and 0 <= self.y < HEIGHT):
+            return False
+
+        if map[self.x, self.y] <= WATER_LEVEL:
+            self.water = 1
+        else:
+            for i in [-1, 1]:
+                if (0 <= self.x + i < WIDTH and map[self.x + i, self.y] <= WATER_LEVEL) or \
+                        (0 <= self.y + i < HEIGHT and map[self.x, self.y + i] <= WATER_LEVEL):
+                    self.water = 1
+                    break
+
+        if population_density > 0:
+            self.food = 1
+
+        return map[self.x, self.y] > (WATER_LEVEL - drowning) and \
+               random.random() > self.age and self.water > 0 and self.food > 0 and \
+               random.random() > population_density * disease_rate
 
     def __survival(self, map_neighboring):
         out = self.__survival_brain.forward(

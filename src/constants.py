@@ -14,14 +14,15 @@ INITIAL_POPULATION = 100
 ###############################
 
 water_decrease = 0.01
-food_decrease = 0.01
-aging = 0.01
+food_decrease = 0.05
+aging = 0.001
 
-drowning = 0.2
-disease_rate = 0.005
-random_dead = 0.001
+drowning = 0.01
+disease_rate = 0.9
+population_distance = 1
 
-reproduction_distance = 2
+reproduction_rate = 0.01
+reproduction_distance = 0
 mutation_rate = 0.01
 
 ###############################
@@ -44,7 +45,7 @@ WATER_COLOR = (54, 141, 197)
 DIRT_COLOR = (155, 118, 83)
 GRASS_COLOR = (110, 180, 50)
 
-HUMAN_COLOR = (0, 121, 255)
+HUMAN_COLOR = (141, 85, 36)
 
 
 ###############################

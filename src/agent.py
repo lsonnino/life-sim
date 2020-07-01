@@ -193,7 +193,7 @@ class Human(object):
     def want_reproduce(self, partner):
         return self.__reproduction(partner.age, partner.water, partner.food) == YES
 
-    def reproduce(self, partner):
+    def reproduce(self, partner, mutation_rate=mutation_rate):
         child = Human()
 
         child.__survival_brain = self.__survival_brain.reproduce(partner.__survival_brain)

@@ -1,6 +1,5 @@
 import pygame
 import numpy as np
-import random
 from itertools import compress
 
 from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, HUMAN_COLOR
@@ -93,17 +92,29 @@ class PopulationHandler(object):
         return np.array(matrix), np.array(closest), size
 
     def __reproduce(self):
-        # Reproduce
         matrix, closest, size = self.__build_adjacent_matrix()
         to_add = []
         for i in range(size):
             for j in range(i + 1, size):
                 if matrix[i, j] <= reproduction_distance and \
-                        random.random() < reproduction_rate and \
                         self.population[i].want_reproduce(self.population[j]) and \
                         self.population[j].want_reproduce(self.population[i]):
                     to_add.append(self.population[i].reproduce(self.population[j]))
         self.population = self.population + to_add
+
+    def __population_injection(self):
+        if len(self.population) > 0:
+            female = self.population[0]
+        else:
+            female = Human()
+
+        if len(self.population) == 2:
+            male = self.population[1]
+        else:
+            male = female
+
+        for i in range(INITIAL_POPULATION):
+            self.population.append(female.reproduce(male, mutation_rate=1))
 
     def tick(self, map):
         matrix, closest, size = self.__build_adjacent_matrix()
@@ -142,6 +153,10 @@ class PopulationHandler(object):
         if self.reproduction_wait == reproduction_rest:
             self.reproduction_wait = 0
             self.__reproduce()
+
+        if len(self.population) <= 2:
+            self.__population_injection()
+            self.reproduction_wait = 0
 
         self.reproduction_wait += 1
 

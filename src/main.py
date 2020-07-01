@@ -57,6 +57,7 @@ while running:
     # Run the game
     #
 
+    game.tick()
     game.draw()
 
     #

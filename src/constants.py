@@ -21,6 +21,7 @@ drowning = 0.2
 disease_rate = 0.01
 random_dead = 0.01
 
+reproduction_distance = 2
 mutation_rate = 0.01
 
 ###############################
@@ -30,7 +31,7 @@ mutation_rate = 0.01
 NAME = 'Life Sim'
 VERSION = '1.0'
 WIN_SIZE = (1280, 720)
-FPS = 1
+FPS = 25
 
 
 ###############################

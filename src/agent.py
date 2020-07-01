@@ -127,9 +127,9 @@ class Human(object):
         self.food -= food_decrease
         self.age += aging
 
-    def is_alive(self, map_level, population_density):
+    def is_alive(self, map, population_density):
         return 0 <= self.x < WIDTH and 0 <= self.y < HEIGHT and \
-               map_level > (WATER_LEVEL - drowning) and \
+               map[self.x, self.y] > (WATER_LEVEL - drowning) and \
                self.age < 1 and self.water > 0 and self.food > 0 and \
                random.random() > population_density * disease_rate and \
                random.random() > random_dead
@@ -178,8 +178,8 @@ class Human(object):
         else:
             self.y += 1
 
-    def want_reproduce(self, other_age, other_water, other_food):
-        return self.__reproduction(other_age, other_water, other_food) == YES
+    def want_reproduce(self, partner):
+        return self.__reproduction(partner.age, partner.water, partner.food) == YES
 
     def reproduce(self, partner):
         child = Human()

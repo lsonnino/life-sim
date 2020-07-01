@@ -115,8 +115,8 @@ class Human(object):
         self.__social_brain = NeuralNetwork(input=5, output=4)
         self.__reproductive_brain = NeuralNetwork(input=4, output=2)
 
-        self.x = random.random() * (WIDTH - 1)
-        self.y = random.random() * (HEIGHT - 1)
+        self.x = int(random.random() * WIDTH)
+        self.y = int(random.random() * HEIGHT)
 
         self.water = 1
         self.food = 1
@@ -177,6 +177,9 @@ class Human(object):
             self.y -= 1
         else:
             self.y += 1
+
+    def want_reproduce(self, other_age, other_water, other_food):
+        return self.__reproduction(other_age, other_water, other_food) == YES
 
     def reproduce(self, partner):
         child = Human()

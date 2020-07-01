@@ -1,8 +1,10 @@
-import numpy as np
+import pygame
 
-from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR
+from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, HUMAN_COLOR
 from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL
+from src.constants import INITIAL_POPULATION
 from src.map_generator import generate
+from src.agent import Human
 
 
 def case_color(value):
@@ -41,10 +43,20 @@ def generate_map():
 """
 
 
+class PopulationHandler(object):
+    def __init__(self):
+        self.population = [Human() for i in range(INITIAL_POPULATION)]
+
+    def draw(self, window):
+        for h in self.population:
+            pygame.draw.circle(window, HUMAN_COLOR, (h.x * SIZE, h.y * SIZE), SIZE)
+
+
 class Game(object):
     def __init__(self, window):
         self.window = window
         self.map = generate()
+        self.population_handler = PopulationHandler()
 
     def __draw_case(self, color, x, y):
         self.window.fill(color, (SIZE * x, SIZE * y, SIZE, SIZE))
@@ -54,3 +66,6 @@ class Game(object):
         for x in range(WIDTH):
             for y in range(HEIGHT):
                 self.__draw_case(case_color(self.map[x, y]), x, y)
+
+        # Draw population
+        self.population_handler.draw(self.window)

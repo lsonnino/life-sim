@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 from itertools import compress
+import random
 
 from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, HUMAN_COLOR
 from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL
@@ -106,21 +107,14 @@ class PopulationHandler(object):
         self.population = self.population + to_add
 
     def __population_injection(self):
-        if len(self.population) > 0:
-            female = self.population[0]
-        else:
-            print("Everyone dead")
-            female = Human()
-
-        if len(self.population) == 2:
-            male = self.population[1]
-        else:
-            male = female
-
+        size = len(self.population) - 1  # -1 to ensure to avoir array index out of bound
         for i in range(INITIAL_POPULATION):
+            female = self.population[int(random.random() * size)]
+            male = self.population[int(random.random() * size)]
+
             self.population.append(female.reproduce(
                 male,
-                mutation_rate=max(0.999 ** self.tries, mutation_rate)
+                mutation_rate=max(0.95 ** self.tries, mutation_rate)
             ))
 
     def tick(self, map):
@@ -154,16 +148,19 @@ class PopulationHandler(object):
             to_remove[i] = h.is_alive(map, population_density, self.flags)
 
         # Remove those who are dead
-        self.population = list(compress(self.population, to_remove))
+        next_gen = list(compress(self.population, to_remove))
 
         # Slow start
-        if len(self.population) <= 2:
+        if len(next_gen) <= 2:
             self.__population_injection()
-            self.reproduction_wait = 0
+            self.reproduction_wait = 0  # disable reproduction
             self.tries += 1
 
-        self.reproduction_wait += 1
+            print("Generation", self.tries)
+        else:
+            self.population = next_gen
 
+        # Set the difficulty for next generation
         flag_mod = int(self.tries / 20) - 1
         if 0 <= flag_mod < len(self.flags):
             self.flags[flag_mod] = False
@@ -173,6 +170,7 @@ class PopulationHandler(object):
         if (not self.flags[-1]) and self.reproduction_wait == reproduction_rest:
             self.reproduction_wait = 0
             self.__reproduce()
+        self.reproduction_wait += 1
 
     def draw(self, window):
         for h in self.population:

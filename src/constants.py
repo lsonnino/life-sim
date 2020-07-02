@@ -25,7 +25,7 @@ aging = 0.005
 
 drowning = 1e-10
 disease_rate = 0.9
-population_distance = 2
+population_distance = 1
 
 reproduction_rest = 100
 reproduction_distance = 0

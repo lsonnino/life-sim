@@ -74,7 +74,7 @@ class PopulationHandler(object):
 
     def __set_flags(self):
         flag_mod = int(self.gen / 10)
-        for i in range(flag_mod):
+        for i in range(min(flag_mod, len(self.flags))):
             if self.flags[i]:
                 self.flags[i] = False
                 print("Set to false flag", flag_mod)
@@ -136,14 +136,18 @@ class PopulationHandler(object):
 
     def __population_injection(self):
         size = len(self.population) - 1  # -1 to ensure to avoid array index out of bound
+
+        next_gen = []
         for i in range(INITIAL_POPULATION):
             female = self.population[int(random.random() * size)]
             male = self.population[int(random.random() * size)]
 
-            self.population.append(female.reproduce(
+            next_gen.append(female.reproduce(
                 male,
                 mutation_rate=max(0.95 ** self.gen, mutation_rate)
             ))
+
+        self.population = next_gen
 
     def tick(self, map):
         matrix, closest, size = self.__build_adjacent_matrix()
@@ -161,7 +165,8 @@ class PopulationHandler(object):
                 map[h.x, h.y - 1] if 0 <= h.y - 1 else 0,
                 map[h.x, h.y + 1] if h.y + 1 < HEIGHT else 0
             ]
-            population_density = len(np.where(matrix[i] <= population_distance)) / size
+            population_density = (len(np.where(matrix[i] <= population_distance)) - 1) / size  # -1 to remove
+            # the player itself
             c_east = closest[i][0] / WIDTH
             c_west = closest[i][1] / WIDTH
             c_north = closest[i][2] / HEIGHT

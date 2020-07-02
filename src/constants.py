@@ -14,7 +14,7 @@ INITIAL_POPULATION = 500
 
 water_decrease = 0.01
 food_decrease = 0.05
-aging = 0.001
+aging = 0.005
 
 drowning = 1e-10
 disease_rate = 0.9

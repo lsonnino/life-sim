@@ -4,7 +4,8 @@ from itertools import compress
 
 from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, HUMAN_COLOR
 from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL
-from src.constants import INITIAL_POPULATION, reproduction_distance, reproduction_rest, population_distance
+from src.constants import INITIAL_POPULATION, reproduction_distance, reproduction_rest, population_distance,\
+    mutation_rate
 from src.map_generator import generate
 from src.agent import Human
 
@@ -49,6 +50,8 @@ class PopulationHandler(object):
     def __init__(self):
         self.population = [Human() for i in range(INITIAL_POPULATION)]
         self.reproduction_wait = 0
+        self.tries = 0
+        self.flags = [True, True, True, True]
 
     def __build_adjacent_matrix(self):
         size = len(self.population)
@@ -106,6 +109,7 @@ class PopulationHandler(object):
         if len(self.population) > 0:
             female = self.population[0]
         else:
+            print("Everyone dead")
             female = Human()
 
         if len(self.population) == 2:
@@ -114,7 +118,10 @@ class PopulationHandler(object):
             male = female
 
         for i in range(INITIAL_POPULATION):
-            self.population.append(female.reproduce(male, mutation_rate=1))
+            self.population.append(female.reproduce(
+                male,
+                mutation_rate=max(0.999 ** self.tries, mutation_rate)
+            ))
 
     def tick(self, map):
         matrix, closest, size = self.__build_adjacent_matrix()
@@ -144,21 +151,28 @@ class PopulationHandler(object):
 
             h.move(map_level, [c_east, c_west, c_north, c_south], population_density)
 
-            to_remove[i] = h.is_alive(map, population_density)
+            to_remove[i] = h.is_alive(map, population_density, self.flags)
 
         # Remove those who are dead
         self.population = list(compress(self.population, to_remove))
 
-        # Reproduce
-        if self.reproduction_wait == reproduction_rest:
-            self.reproduction_wait = 0
-            self.__reproduce()
-
+        # Slow start
         if len(self.population) <= 2:
             self.__population_injection()
             self.reproduction_wait = 0
+            self.tries += 1
 
         self.reproduction_wait += 1
+
+        flag_mod = int(self.tries / 20) - 1
+        if 0 <= flag_mod < len(self.flags):
+            self.flags[flag_mod] = False
+            print("Set to false flag", flag_mod)
+
+        # Reproduce
+        if (not self.flags[-1]) and self.reproduction_wait == reproduction_rest:
+            self.reproduction_wait = 0
+            self.__reproduce()
 
     def draw(self, window):
         for h in self.population:

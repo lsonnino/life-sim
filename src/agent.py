@@ -79,9 +79,9 @@ class Human(object):
         Priority: 3
         input: 4
             map level left, map level right, map level up, map level down
-
         output: 5
             do nothing, go east, go west, go north, go south
+
     Needs Brain:
         This brain handles the needs of the human (eating, drinking, ...)
         Priority: 2
@@ -126,7 +126,13 @@ class Human(object):
         self.food -= food_decrease
         self.age += aging
 
-    def is_alive(self, map, population_density):
+    def is_alive(self, map, population_density, flags=None):
+        """
+        Flags: check a cause of death or not:
+            [disable starving, disable dehydration, disable disease, disable random aging death]
+        """
+        if flags is None:
+            flags = [False, False, False, False]
         if not (0 <= self.x < WIDTH and 0 <= self.y < HEIGHT):
             return False
 
@@ -143,8 +149,9 @@ class Human(object):
             self.food = 1
 
         return map[self.x, self.y] > (WATER_LEVEL - drowning) and \
-               random.random() > self.age and self.water > 0 and self.food > 0 and \
-               random.random() > population_density * disease_rate
+               (1 if flags[3] else random.random()) > self.age and \
+               (flags[1] or self.water > 0) and (flags[0] or self.food > 0) and \
+               (flags[2] or random.random() > population_density * disease_rate)
 
     def __survival(self, map_neighboring):
         out = self.__survival_brain.forward(

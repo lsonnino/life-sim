@@ -73,11 +73,13 @@ class PopulationHandler(object):
             pickle.dump(self.population, f)
 
     def __set_flags(self):
-        flag_mod = int(self.gen / 10)
-        for i in range(min(flag_mod, len(self.flags))):
-            if self.flags[i]:
-                self.flags[i] = False
-                print("Set to false flag", flag_mod)
+        for i in range(len(self.flags)):
+            if (i + 1) <= int(self.gen / ((i+1) * 10)):
+                if self.flags[i]:
+                    self.flags[i] = False
+                    print("Set to false flag", i)
+            else:
+                break
 
     def __build_adjacent_matrix(self, do_closest=True):
         size = len(self.population)
@@ -165,7 +167,7 @@ class PopulationHandler(object):
                 map[h.x, h.y - 1] if 0 <= h.y - 1 else 0,
                 map[h.x, h.y + 1] if h.y + 1 < HEIGHT else 0
             ]
-            population_density = (len(np.where(matrix[i] <= population_distance)) - 1) / size  # -1 to remove
+            population_density = float(len(np.where(abs(matrix[i]) <= population_distance)[0]) - 1) / size  # -1 to remove
             # the player itself
             c_east = closest[i][0] / WIDTH
             c_west = closest[i][1] / WIDTH

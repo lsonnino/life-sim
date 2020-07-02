@@ -108,6 +108,7 @@ class Human(object):
         output: 2
             yes, no
     """
+
     def __init__(self):
         self.__survival_brain = NeuralNetwork(input=4, output=5)
         self.__needs_brain = NeuralNetwork(input=6, output=5)

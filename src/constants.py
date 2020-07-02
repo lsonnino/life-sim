@@ -19,13 +19,13 @@ LOAD = 10
 #   GAME MECHANICS
 ###############################
 
-water_decrease = 0.01
+water_decrease = 0.02
 food_decrease = 0.05
 aging = 0.005
 
 drowning = 1e-10
 disease_rate = 0.9
-population_distance = 1
+population_distance = 0
 
 reproduction_rest = 100
 reproduction_distance = 0

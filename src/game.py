@@ -91,7 +91,7 @@ class PopulationHandler(object):
                 dx = self.population[i].x - self.population[j].x
                 dy = self.population[i].y - self.population[j].y
 
-                matrix[i, j] = dx + dy
+                matrix[i, j] = abs(dx) + abs(dy)
                 matrix[j, i] = matrix[i, j]
 
                 if not do_closest:
@@ -167,8 +167,8 @@ class PopulationHandler(object):
                 map[h.x, h.y - 1] if 0 <= h.y - 1 else 0,
                 map[h.x, h.y + 1] if h.y + 1 < HEIGHT else 0
             ]
-            population_density = float(len(np.where(abs(matrix[i]) <= population_distance)[0]) - 1) / size  # -1 to remove
-            # the player itself
+            population_density = float(len(np.where(matrix[i] <= population_distance)[0]) - 1) / size  # -1 to
+            # remove the player itself
             c_east = closest[i][0] / WIDTH
             c_west = closest[i][1] / WIDTH
             c_north = closest[i][2] / HEIGHT

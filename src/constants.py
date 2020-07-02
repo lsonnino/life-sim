@@ -9,6 +9,13 @@ SEED = 8629378618930
 INITIAL_POPULATION = 500
 
 ###############################
+#   AUTO-SAVE PARAMETERS
+###############################
+
+DATA_DIRECTORY = "data"
+LOAD = 10
+
+###############################
 #   GAME MECHANICS
 ###############################
 
@@ -29,7 +36,7 @@ mutation_rate = 0.01
 ###############################
 
 NAME = 'Life Sim'
-VERSION = '1.0'
+VERSION = '1.1'
 WIN_SIZE = (1280, 720)
 FPS = 25
 

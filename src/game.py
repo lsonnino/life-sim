@@ -2,11 +2,13 @@ import pygame
 import numpy as np
 from itertools import compress
 import random
+import pickle
 
 from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, HUMAN_COLOR
 from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL
 from src.constants import INITIAL_POPULATION, reproduction_distance, reproduction_rest, population_distance,\
-    mutation_rate
+    mutation_rate, aging
+from src.constants import DATA_DIRECTORY, LOAD
 from src.map_generator import generate
 from src.agent import Human
 
@@ -51,10 +53,33 @@ class PopulationHandler(object):
     def __init__(self):
         self.population = [Human() for i in range(INITIAL_POPULATION)]
         self.reproduction_wait = 0
-        self.tries = 0
+        self.gen = 0
+        self.gen_advance = 0.0
         self.flags = [True, True, True, True]
 
-    def __build_adjacent_matrix(self):
+        if LOAD >= 0:
+            self.__load()
+
+    def __load(self):
+        with open(DATA_DIRECTORY + '/' + str(LOAD) + '.data', 'rb') as f:
+            self.population = pickle.load(f)
+            self.gen = LOAD
+            self.__set_flags()
+
+            print("Loaded generation", self.gen)
+
+    def __save(self):
+        with open(DATA_DIRECTORY + '/' + str(self.gen) + '.data', 'wb') as f:
+            pickle.dump(self.population, f)
+
+    def __set_flags(self):
+        flag_mod = int(self.gen / 10)
+        for i in range(flag_mod):
+            if self.flags[i]:
+                self.flags[i] = False
+                print("Set to false flag", flag_mod)
+
+    def __build_adjacent_matrix(self, do_closest=True):
         size = len(self.population)
         matrix = np.zeros((size, size))
         closest = np.zeros((size, 4)) - 1
@@ -66,6 +91,9 @@ class PopulationHandler(object):
 
                 matrix[i, j] = dx + dy
                 matrix[j, i] = matrix[i, j]
+
+                if not do_closest:
+                    continue
 
                 if dx < 0:  # j is to the west
                     ci = closest[i][1]
@@ -96,7 +124,7 @@ class PopulationHandler(object):
         return np.array(matrix), np.array(closest), size
 
     def __reproduce(self):
-        matrix, closest, size = self.__build_adjacent_matrix()
+        matrix, _, size = self.__build_adjacent_matrix(do_closest=False)
         to_add = []
         for i in range(size):
             for j in range(i + 1, size):
@@ -107,14 +135,14 @@ class PopulationHandler(object):
         self.population = self.population + to_add
 
     def __population_injection(self):
-        size = len(self.population) - 1  # -1 to ensure to avoir array index out of bound
+        size = len(self.population) - 1  # -1 to ensure to avoid array index out of bound
         for i in range(INITIAL_POPULATION):
             female = self.population[int(random.random() * size)]
             male = self.population[int(random.random() * size)]
 
             self.population.append(female.reproduce(
                 male,
-                mutation_rate=max(0.95 ** self.tries, mutation_rate)
+                mutation_rate=max(0.95 ** self.gen, mutation_rate)
             ))
 
     def tick(self, map):
@@ -154,23 +182,30 @@ class PopulationHandler(object):
         if len(next_gen) <= 2:
             self.__population_injection()
             self.reproduction_wait = 0  # disable reproduction
-            self.tries += 1
+            self.gen += 1
+            self.gen_advance = 0.0
 
-            print("Generation", self.tries)
+            print("Forced reproduction for generation", self.gen)
+            self.__save()
         else:
             self.population = next_gen
 
         # Set the difficulty for next generation
-        flag_mod = int(self.tries / 20) - 1
-        if 0 <= flag_mod < len(self.flags):
-            self.flags[flag_mod] = False
-            print("Set to false flag", flag_mod)
+        self.__set_flags()
 
         # Reproduce
         if (not self.flags[-1]) and self.reproduction_wait == reproduction_rest:
             self.reproduction_wait = 0
             self.__reproduce()
         self.reproduction_wait += 1
+
+        # Next generation
+        if self.gen_advance >= 1:
+            self.gen_advance = 0.0
+            self.gen += 1
+            print("Generation", self.gen)
+
+        self.gen_advance += aging
 
     def draw(self, window):
         for h in self.population:

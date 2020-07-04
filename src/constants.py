@@ -13,7 +13,7 @@ INITIAL_POPULATION = 500
 ###############################
 
 DATA_DIRECTORY = "data"
-LOAD = 10
+LOAD = -1
 
 ###############################
 #   GAME MECHANICS

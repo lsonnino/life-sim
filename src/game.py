@@ -74,7 +74,7 @@ class PopulationHandler(object):
 
     def __set_flags(self):
         for i in range(len(self.flags)):
-            if (i + 1) <= int(self.gen / ((i+1) * 10)):
+            if (i + 1) <= int(self.gen / ((i+1) * 20)):
                 if self.flags[i]:
                     self.flags[i] = False
                     print("Set to false flag", i)

@@ -7,12 +7,26 @@ from src.constants import water_decrease, food_decrease, aging, disease_rate, dr
 
 
 class NeuralNetwork(object):
-    def __init__(self, input, output):
+    def __init__(self, input, output, hidden=None):
+        if hidden is None:
+            hidden = []
+
         self.input = input
         self.output = output
+        self.hidden = hidden
 
-        self.weights = np.zeros((self.output, self.input))
-        self.biases = np.zeros(self.output)
+        self.weights = []
+        self.biases = []
+
+        prev = self.input
+        for n in self.hidden:
+            self.weights.append(np.zeros((n, prev)).tolist())
+            self.biases.append(np.zeros(n).tolist())
+
+            prev = n
+
+        self.weights.append(np.zeros((self.output, prev)).tolist())
+        self.biases.append(np.zeros(self.output).tolist())
 
         self.initialize()
 
@@ -20,30 +34,40 @@ class NeuralNetwork(object):
         self.mutate(mutation_rate=1)
 
     def mutate(self, mutation_rate):
-        for x in range(self.output):
-            for y in range(self.input):
-                self.weights[x, y] += (2 * random.random() - 1) * mutation_rate
+        for i in range(len(self.weights)):
+            for j in range(len(self.weights[i])):
+                for k in range(len(self.weights[i][j])):
+                    self.weights[i][j][k] += (2 * random.random() - 1) * mutation_rate
 
-            self.biases[x] += (2 * random.random() - 1) * mutation_rate
+                self.biases[i][j] += (2 * random.random() - 1) * mutation_rate
 
     def reproduce(self, partner_brain):
-        new = NeuralNetwork(self.input, self.output)
+        new = NeuralNetwork(self.input, self.output, self.hidden)
 
-        for x in range(self.output):
-            for y in range(self.input):
-                new.weights[x, y] = (self.weights[x, y] + partner_brain.weights[x, y]) / 2
+        for i in range(len(self.weights)):
+            for j in range(len(self.weights[i])):
+                for k in range(len(self.weights[i][j])):
+                    new.weights[i][j][k] = (self.weights[i][j][k] + partner_brain.weights[i][j][k]) / 2
 
-            new.biases[x] = (self.biases[x] + partner_brain.biases[x]) / 2
+        for i in range(len(self.biases)):
+            for j in range(len(self.biases[i])):
+                new.biases[i][j] = (self.biases[i][j] + partner_brain.biases[i][j]) / 2
 
         return new
 
     def forward(self, input):
-        output = np.zeros(self.output)
+        last_output = input
+        current_output = None
 
-        for o in range(self.output):
-            output[o] = np.dot(input, self.weights[o]) + self.biases[o]
+        for i in range(len(self.biases)):
+            current_output = np.zeros(len(self.biases[i]))
 
-        return output
+            for j in range(len(current_output)):
+                current_output[j] = np.dot(last_output, self.weights[i][j]) + self.biases[i][j]
+
+            last_output = current_output
+
+        return current_output
 
 
 class Human(object):
@@ -115,6 +139,8 @@ class Human(object):
         self.__social_brain = NeuralNetwork(input=5, output=4)
         self.__reproductive_brain = NeuralNetwork(input=4, output=2)
 
+        self.__universal_brain = NeuralNetwork(input=11, output=4, hidden=[11])
+
         self.x = int(random.random() * WIDTH)
         self.y = int(random.random() * HEIGHT)
 
@@ -183,11 +209,16 @@ class Human(object):
         return np.argmax(out)
 
     def move(self, map_neighboring, humans_closest, population_density):
+        """
         direction = self.__survival(map_neighboring)
         if direction == NOTHING:
             direction = self.__needs(map_neighboring)
             if direction == NOTHING:
                 direction = self.__social(humans_closest, population_density)
+        """
+        direction = np.argmax(self.__universal_brain.forward(
+            map_neighboring + humans_closest + [population_density, self.food, self.water]
+        ))
 
         if direction == EAST:
             self.x -= 1
@@ -204,6 +235,7 @@ class Human(object):
     def reproduce(self, partner, mutation_rate=mutation_rate):
         child = Human()
 
+        """
         child.__survival_brain = self.__survival_brain.reproduce(partner.__survival_brain)
         child.__needs_brain = self.__needs_brain.reproduce(partner.__needs_brain)
         child.__social_brain = self.__social_brain.reproduce(partner.__social_brain)
@@ -213,5 +245,8 @@ class Human(object):
         child.__needs_brain.mutate(mutation_rate)
         child.__social_brain.mutate(mutation_rate)
         child.__reproductive_brain.mutate(mutation_rate)
+        """
+        child.__universal_brain = self.__universal_brain.reproduce(partner.__universal_brain)
+        child.__universal_brain.mutate(mutation_rate)
 
         return child

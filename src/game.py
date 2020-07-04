@@ -3,6 +3,7 @@ import numpy as np
 from itertools import compress
 import random
 import pickle
+import threading
 
 from src.constants import WATER_COLOR, DIRT_COLOR, GRASS_COLOR, HUMAN_COLOR
 from src.constants import SIZE, WIDTH, HEIGHT, WATER_LEVEL
@@ -151,36 +152,44 @@ class PopulationHandler(object):
 
         self.population = next_gen
 
+    def __handle_human(self, i, map, to_remove, matrix, closest, size):
+        h = self.population[i]
+
+        h.tick()
+
+        map_level = [
+            map[h.x - 1, h.y] if 0 <= h.x - 1 else 0,
+            map[h.x + 1, h.y] if h.x + 1 < WIDTH else 0,
+            map[h.x, h.y - 1] if 0 <= h.y - 1 else 0,
+            map[h.x, h.y + 1] if h.y + 1 < HEIGHT else 0
+        ]
+        population_density = float(len(np.where(matrix[i] <= population_distance)[0]) - 1) / size  # -1 to
+        # remove the player itself
+        c_east = closest[i][0] / WIDTH
+        c_west = closest[i][1] / WIDTH
+        c_north = closest[i][2] / HEIGHT
+        c_south = closest[i][3] / HEIGHT
+        c_east = c_east if c_east >= 0 else 1
+        c_west = c_west if c_west >= 0 else 1
+        c_north = c_north if c_north >= 0 else 1
+        c_south = c_south if c_south >= 0 else 1
+
+        h.move(map_level, [c_east, c_west, c_north, c_south], population_density)
+
+        to_remove[i] = h.is_alive(map, population_density, self.flags)
+
     def tick(self, map):
         matrix, closest, size = self.__build_adjacent_matrix()
         to_remove = [False] * size
 
         # Move
+        threads = [None] * size
         for i in range(size):
-            h = self.population[i]
+            threads[i] = threading.Thread(target=self.__handle_human(i, map, to_remove, matrix, closest, size))
+            threads[i].start()
 
-            h.tick()
-
-            map_level = [
-                map[h.x - 1, h.y] if 0 <= h.x - 1 else 0,
-                map[h.x + 1, h.y] if h.x + 1 < WIDTH else 0,
-                map[h.x, h.y - 1] if 0 <= h.y - 1 else 0,
-                map[h.x, h.y + 1] if h.y + 1 < HEIGHT else 0
-            ]
-            population_density = float(len(np.where(matrix[i] <= population_distance)[0]) - 1) / size  # -1 to
-            # remove the player itself
-            c_east = closest[i][0] / WIDTH
-            c_west = closest[i][1] / WIDTH
-            c_north = closest[i][2] / HEIGHT
-            c_south = closest[i][3] / HEIGHT
-            c_east = c_east if c_east >= 0 else 1
-            c_west = c_west if c_west >= 0 else 1
-            c_north = c_north if c_north >= 0 else 1
-            c_south = c_south if c_south >= 0 else 1
-
-            h.move(map_level, [c_east, c_west, c_north, c_south], population_density)
-
-            to_remove[i] = h.is_alive(map, population_density, self.flags)
+        for i in range(size):
+            threads[i].join()
 
         # Remove those who are dead
         next_gen = list(compress(self.population, to_remove))

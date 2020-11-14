@@ -13,7 +13,7 @@ INITIAL_POPULATION = 500
 ###############################
 
 DATA_DIRECTORY = "data"
-LOAD = -1
+LOAD = 80
 
 ###############################
 #   GAME MECHANICS
@@ -36,7 +36,7 @@ mutation_rate = 0.01
 ###############################
 
 NAME = 'Life Sim'
-VERSION = '1.1'
+VERSION = '1.2'
 WIN_SIZE = (1280, 720)
 FPS = 25
 
